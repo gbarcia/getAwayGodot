@@ -7,6 +7,7 @@ var number_of_parked_cars = 100
 var numnber_of_billboards = 75
 var number_of_traffic_cones = 40
 var number_of_hydrants = 50
+var number_of_streetlights = 50
 
 func generate_props(tile_list,size):
 	tiles = tile_list
@@ -15,6 +16,7 @@ func generate_props(tile_list,size):
 	place_billboards()
 	place_traffic_cones()
 	place_hydrants()
+	place_streetlights() 
 	
 func random_tile(tile_count):
 	var tiles_list = tiles
@@ -96,5 +98,23 @@ sync func spawn_hydrants(tile,hydrants_rotation):
 	hydrant.translation = Vector3((tile.x * 20 ) + 10, tile.y,(tile.z * 20) + 10)
 	hydrant.rotation_degrees.y = hydrants_rotation
 	add_child(hydrant,true)
+	
+func place_streetlights():
+	var tiles_list = random_tile(number_of_streetlights)
+	for i in range(number_of_streetlights):
+		var tile = tiles_list[0]
+		var tile_type = get_node("..").get_cell_item(tile.x,0,tile.z)
+		var allowed_rotations = $ObjectRotLookup.lookup_rotation(tile_type)
+		if not allowed_rotations == null:
+			var tile_rotation = allowed_rotations[randi() % allowed_rotations.size() - 1] * -1
+			tile.y = tile.y + 0.5
+			rpc("spawn_streetlights",tile,tile_rotation)
+		tiles_list.pop_front()
+			
+sync func spawn_streetlights(tile,streetlights_rotation):
+	var streetlight = preload("res://Props/StreetLight/StreetLight.tscn").instance()
+	streetlight.translation = Vector3((tile.x * 20 ) + 10, tile.y,(tile.z * 20) + 10)
+	streetlight.rotation_degrees.y = streetlights_rotation
+	add_child(streetlight,true)
 	
 	
